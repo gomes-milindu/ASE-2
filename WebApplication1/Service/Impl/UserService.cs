@@ -10,9 +10,29 @@ namespace WebApplication1.Service.Impl
     public class UserService : IUserService
     {
         private readonly IUserRepository userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IEmailService emailService;
+        public UserService(IUserRepository userRepository, IEmailService emailService)
         {
             this.userRepository = userRepository;
+            this.emailService = emailService;
+        }
+
+        public async Task<bool> SendVerificationEmail(User user)
+        {
+            string otp = Random.Shared.Next(100000, 999999).ToString();
+            string targetEmail = "gomesmilindu@gmail.com";
+            string htmlBody = $" <h3>Your otp is 2 is {otp}</h3>";
+
+            try
+            {
+                await emailService.SendEmailAsync(targetEmail, "Account Verification", htmlBody);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            return true;
         }
 
         public async Task<User> GetUserByEmail(string email)
@@ -66,6 +86,7 @@ namespace WebApplication1.Service.Impl
                  return true;
         }
 
+       
     };
         
 

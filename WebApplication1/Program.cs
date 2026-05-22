@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen();
 // DI registrations
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-
+builder.Services.AddTransient<IEmailService, EmailSender>();
 // TEST MYSQL CONNECTION
 try
 {

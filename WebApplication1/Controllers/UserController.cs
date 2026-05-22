@@ -31,9 +31,9 @@ namespace WebApplication1.Controllers
             if(string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
 
             var user = await userService.GetUserByEmail(email);
-            
+            await userService.SendVerificationEmail(user);
 
-            
+
             return Ok("User Found: " + user.Username);
 
         }

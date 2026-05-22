@@ -7,5 +7,6 @@ namespace WebApplication1.Service.Interface
     {
         Task<User> GetUserByEmail(string email);
         Task<bool> Register(RegisterUserRequest dto);
+        Task<bool> SendVerificationEmail(User user);
     }
 }
