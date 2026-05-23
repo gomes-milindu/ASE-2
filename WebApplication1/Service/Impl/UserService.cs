@@ -20,8 +20,8 @@ namespace WebApplication1.Service.Impl
         public async Task<bool> SendVerificationEmail(User user)
         {
             string otp = Random.Shared.Next(100000, 999999).ToString();
-            string targetEmail = "gomesmilindu@gmail.com";
-            string htmlBody = $" <h3>Your otp is 2 is {otp}</h3>";
+            string targetEmail = user.Profile.Email;
+            string htmlBody = $" <h3>Your otp is 4 is {otp}</h3>";
 
             try
             {
