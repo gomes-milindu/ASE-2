@@ -26,13 +26,15 @@ namespace WebApplication1.Service.Impl
             try
             {
                 await emailService.SendEmailAsync(targetEmail, "Account Verification", htmlBody);
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return false;
             }
             
-            return true;
+            
         }
 
         public async Task<User> GetUserByEmail(string email)

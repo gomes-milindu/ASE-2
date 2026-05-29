@@ -31,10 +31,25 @@ namespace WebApplication1.Controllers
             if(string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
 
             var user = await userService.GetUserByEmail(email);
-            await userService.SendVerificationEmail(user);
+            
 
+            if(user == null)
+            {
+                return NotFound("User Not Found");
+            }
 
-            return Ok("User Found: " + user.Username);
+            var result = await userService.SendVerificationEmail(user);
+
+            if (result)
+            {
+                return Ok("Verification email sent successfully");
+            }
+            else
+            {
+                return StatusCode(500, "Failed to send verification email");
+            }
+
+            
 
         }
     }
