@@ -88,7 +88,10 @@ namespace WebApplication1.Service.Impl
                  return true;
         }
 
-       
+        public Task<bool> VerifyEmailOtp(VerifyEmailOtp dto)
+        {
+            throw new NotImplementedException();
+        }
     };
         
 

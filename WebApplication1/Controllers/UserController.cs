@@ -25,7 +25,7 @@ namespace WebApplication1.Controllers
             return Ok("User registered successfully");
         }
 
-        [HttpPost("emailVerify")]
+        [HttpPost("SendEmailToVerify")]
         public async Task<IActionResult> SendEmail([FromBody] string email)
         {
             if(string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
@@ -49,8 +49,30 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Failed to send verification email");
             }
 
-            
-
         }
-    }
+
+        [HttpPost("VerifyEmailOtp")]
+        public async Task<IActionResult> VerifyEmailOtp(VerifyEmailOtp dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var result = await userService.VerifyEmailOtp(dto);
+                if (result)
+                {
+                    return Ok("Email verified successfully");
+                }
+                else
+                {
+                    return BadRequest("Invalid OTP");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 }
