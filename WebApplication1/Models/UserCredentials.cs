@@ -22,5 +22,18 @@ namespace WebApplication1.Models
 
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
+
+        public string? VerificationOtp { get; set; }
+
+        public DateTime? OtpGeneratedAt { get; set; }
+
+        public DateTime? OtpExpiredAt { get; set; }
+
+        public string? MobileVerificationOtp { get; set; }
+        public DateTime? MobileOtpGeneratedAt { get; set; }
+
+        public DateTime? MobileOtpExpiresAt { get;set; }
+
+        
     }
 }

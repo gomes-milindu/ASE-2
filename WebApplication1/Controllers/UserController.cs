@@ -28,12 +28,12 @@ namespace WebApplication1.Controllers
         [HttpPost("SendEmailToVerify")]
         public async Task<IActionResult> SendEmail([FromBody] string email)
         {
-            if(string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
+            if (string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
 
             var user = await userService.GetUserByEmail(email);
-            
 
-            if(user == null)
+
+            if (user == null)
             {
                 return NotFound("User Not Found");
             }
@@ -75,4 +75,25 @@ namespace WebApplication1.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("SendSmsToVerify")]
+        public async Task<IActionResult> SendSms([FromBody] string email)
+        {
+            if (string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
+            var user = await userService.GetUserByEmail(email);
+            if (user == null)
+            {
+                return NotFound("User Not Found");
+            }
+            var result = await userService.SendVerificationSms(user);
+            if (result)
+            {
+                return Ok("Verification SMS sent successfully");
+            }
+            else
+            {
+                return StatusCode(500, "Failed to send verification SMS");
+            }
+        }
+    }
 }

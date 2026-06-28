@@ -6,5 +6,6 @@ namespace WebApplication1.Repository.Interface
     {
         Task<User> GetUserByEmail(string email);
         Task SaveUser(User user);
+        Task UpdateUser(User user);
     }
 }

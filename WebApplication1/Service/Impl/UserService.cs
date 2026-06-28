@@ -1,5 +1,4 @@
-﻿
-using WebApplication1.DTO;
+﻿using WebApplication1.DTO;
 using WebApplication1.Models;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
@@ -11,10 +10,12 @@ namespace WebApplication1.Service.Impl
     {
         private readonly IUserRepository userRepository;
         private readonly IEmailService emailService;
-        public UserService(IUserRepository userRepository, IEmailService emailService)
+        private readonly ISmsService smsService;
+        public UserService(IUserRepository userRepository, IEmailService emailService, ISmsService smsService)
         {
             this.userRepository = userRepository;
             this.emailService = emailService;
+            this.smsService = smsService;
         }
 
         public async Task<bool> SendVerificationEmail(User user)
@@ -25,7 +26,15 @@ namespace WebApplication1.Service.Impl
 
             try
             {
+                
+                user.Credential.VerificationOtp = otp;
+                user.Credential.OtpGeneratedAt = DateTime.UtcNow;
+                user.Credential.OtpExpiredAt = DateTime.UtcNow.AddMinutes(5);
+
+                await userRepository.SaveUser(user);
+
                 await emailService.SendEmailAsync(targetEmail, "Account Verification", htmlBody);
+                
                 return true;
             }
             catch (Exception e)
@@ -88,9 +97,62 @@ namespace WebApplication1.Service.Impl
                  return true;
         }
 
-        public Task<bool> VerifyEmailOtp(VerifyEmailOtp dto)
+        public async Task<bool> VerifyEmailOtp(VerifyEmailOtp dto)
         {
-            throw new NotImplementedException();
+            var user = await userRepository.GetUserByEmail(dto.Email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(user.Credential.VerificationOtp))
+            {
+                return false;
+            }
+
+            if (DateTime.UtcNow > user.Credential.OtpExpiredAt)
+            {
+                throw new TimeoutException("ඇතුළත් කළ OTP කේතයේ වලංගු කාලය (විනාඩි 5) ඉක්මවා ඇත.");
+            }
+
+            if (user.Credential.VerificationOtp == dto.Otp)
+            {
+                user.Status = AccountStatus.Active;
+
+                user.Credential.VerificationOtp = null;
+                user.Credential.OtpGeneratedAt = null;
+                user.Credential.OtpExpiredAt = null;
+
+                await userRepository.SaveUser(user);
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> SendVerificationSms(User user)
+        {
+            string otp = Random.Shared.Next(100000, 999999).ToString();
+            string targetPhoneNumber = user.Profile.PhoneNumber;
+
+            string smsBody = $"Your OTP is {otp}";
+
+            try
+            {
+                user.Credential.MobileVerificationOtp = otp;
+                user.Credential.MobileOtpGeneratedAt = DateTime.UtcNow;
+                user.Credential.MobileOtpExpiresAt = DateTime.UtcNow.AddMinutes(5);
+
+                await userRepository.SaveUser(user);
+                await smsService.SendSmsAsync(targetPhoneNumber, smsBody);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+            
         }
     };
         

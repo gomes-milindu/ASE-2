@@ -22,6 +22,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<IEmailService, EmailSender>();
+// Inside Program.cs
+builder.Services.AddScoped<ISmsService, SmsSender>();
+// Add this to register HttpClient in the DI container
+builder.Services.AddHttpClient();
 // TEST MYSQL CONNECTION
 try
 {
