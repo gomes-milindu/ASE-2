@@ -117,7 +117,7 @@ namespace WebApplication1.Service.Impl
 
             if (user.Credential.VerificationOtp == dto.Otp)
             {
-                user.Status = AccountStatus.Active;
+                
 
                 user.Credential.VerificationOtp = null;
                 user.Credential.OtpGeneratedAt = null;
@@ -152,7 +152,44 @@ namespace WebApplication1.Service.Impl
                 Console.WriteLine(e);
                 return false;
             }
-            
+
+        }
+
+        public async Task<bool> VerifySmsOtp(VerifyEmailOtp dto)
+        {
+            var user = await userRepository.GetUserByEmail(dto.Email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(user.Credential.MobileVerificationOtp))
+            {
+                return false;
+            }
+
+            if (DateTime.UtcNow > user.Credential.MobileOtpExpiresAt)
+            {
+                throw new TimeoutException("ඇතුළත් කළ OTP කේතයේ වලංගු කාලය (විනාඩි 5) ඉක්මවා ඇත.");
+            }
+
+            if (user.Credential.MobileVerificationOtp == dto.Otp)
+            {
+                
+
+                user.Credential.MobileVerificationOtp = null;
+                user.Credential.MobileOtpGeneratedAt = null;
+                user.Credential.MobileOtpExpiresAt = null;
+
+                if (string.IsNullOrEmpty(user.Credential.VerificationOtp))
+                {
+                    user.Status = AccountStatus.Active; 
+                }
+
+                await userRepository.SaveUser(user);
+                return true;
+            }
+            return false;
         }
     };
         

@@ -95,5 +95,31 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Failed to send verification SMS");
             }
         }
+
+
+        [HttpPost("VerifySmsOtp")]
+        public async Task<IActionResult> VerifySmsOtp([FromBody] VerifyEmailOtp dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var result = await userService.VerifySmsOtp(dto);
+                if (result)
+                {
+                    return Ok("Mobile Number verified successfully");
+                }
+                else
+                {
+                    return BadRequest("Invalid OTP or User not Found");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
