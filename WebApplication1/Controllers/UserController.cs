@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.DTO;
 using WebApplication1.Models;
+using WebApplication1.Repository.Impl;
 using WebApplication1.Service.Interface;
 
 namespace WebApplication1.Controllers
@@ -121,5 +122,17 @@ namespace WebApplication1.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+
+        [HttpGet("SearchUserByEmail")]
+        public async Task<IActionResult> GetUserByEmail( string email)
+        {
+            var user = await userService.SearchUserByEmail(email);
+
+            return Ok(user);
+
+        }
+        
     }
 }

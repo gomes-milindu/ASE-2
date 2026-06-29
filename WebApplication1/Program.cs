@@ -26,7 +26,21 @@ builder.Services.AddTransient<IEmailService, EmailSender>();
 builder.Services.AddScoped<ISmsService, SmsSender>();
 // Add this to register HttpClient in the DI container
 builder.Services.AddHttpClient();
-// TEST MYSQL CONNECTION
+
+
+
+
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+
+        
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
 try
 {
     //string connStr = builder.Configuration.GetConnectionString("MySqlConnection");

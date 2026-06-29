@@ -1,8 +1,9 @@
-﻿using WebApplication1.DTO;
+﻿using BCrypt.Net;
+using System.Net.NetworkInformation;
+using WebApplication1.DTO;
 using WebApplication1.Models;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
-using BCrypt.Net;
 
 namespace WebApplication1.Service.Impl
 {
@@ -112,7 +113,7 @@ namespace WebApplication1.Service.Impl
 
             if (DateTime.UtcNow > user.Credential.OtpExpiredAt)
             {
-                throw new TimeoutException("ඇතුළත් කළ OTP කේතයේ වලංගු කාලය (විනාඩි 5) ඉක්මවා ඇත.");
+                throw new TimeoutException("Your Email Otp Time Out. Try Again");
             }
 
             if (user.Credential.VerificationOtp == dto.Otp)
@@ -170,7 +171,7 @@ namespace WebApplication1.Service.Impl
 
             if (DateTime.UtcNow > user.Credential.MobileOtpExpiresAt)
             {
-                throw new TimeoutException("ඇතුළත් කළ OTP කේතයේ වලංගු කාලය (විනාඩි 5) ඉක්මවා ඇත.");
+                throw new TimeoutException("Your Sms Otp Time Out. Try Again");
             }
 
             if (user.Credential.MobileVerificationOtp == dto.Otp)
@@ -190,6 +191,28 @@ namespace WebApplication1.Service.Impl
                 return true;
             }
             return false;
+        }
+
+        public async Task<UserResponseDto?> SearchUserByEmail(string email)
+        {
+            if(email == null)
+            {
+                throw new ArgumentNullException(nameof(email), "Email cannot be null");
+            }
+
+            var user = await userRepository.GetUserByEmail(email);
+            if(user== null) return null;
+
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Status = user.Status.ToString(),
+                Email = user.Profile?.Email ?? string.Empty,
+                FirstName = user.Profile?.FirstName ?? string.Empty,
+                LastName = user.Profile?.LastName ?? string.Empty,
+                PhoneNumber = user.Profile?.PhoneNumber ?? string.Empty
+            };
         }
     };
         

@@ -16,8 +16,10 @@ namespace WebApplication1.Repository.Impl
 
         public async Task<User> GetUserByEmail(string email)
         {
-            var user = await context.Users.Include(u => u.Profile).Include(u => u.Credential).FirstOrDefaultAsync(u => u.Profile.Email == email);
-
+            var user = await context.Users.Include(u => u.Profile)
+                .Include(u => u.Credential)
+                .FirstOrDefaultAsync(u => u.Profile.Email == email);
+            
             return user;
         }
 
@@ -48,6 +50,8 @@ namespace WebApplication1.Repository.Impl
                 throw;
             }
         }
+
+        
 
         public Task UpdateUser(User user)
         {
