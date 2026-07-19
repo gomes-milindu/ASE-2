@@ -2,6 +2,7 @@
 using WebApplication1.Models;
 using WebApplication1.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.DTO;
 
 namespace WebApplication1.Repository.Impl
 {
@@ -12,6 +13,20 @@ namespace WebApplication1.Repository.Impl
         public UserRepository(AppDbContext context)
         {
             this.context = context;
+        }
+
+        public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers()
+        {
+            List<UserResponseDto> usersList = await context.Users.Select(u => new UserResponseDto { 
+                                                                        Id = u.Id, 
+                                                                        Username = u.Username, 
+                                                                        Status = u.Status.ToString(), 
+                                                                        Email = u.Profile.Email, 
+                                                                        FirstName = u.Profile.FirstName, 
+                                                                        LastName = u.Profile.LastName, 
+                                                                        PhoneNumber = u.Profile.PhoneNumber })
+                                                                        .ToListAsync();
+            return usersList;
         }
 
         public async Task<User> GetUserByEmail(string email)

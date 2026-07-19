@@ -214,6 +214,12 @@ namespace WebApplication1.Service.Impl
                 PhoneNumber = user.Profile?.PhoneNumber ?? string.Empty
             };
         }
+
+        public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers()
+        {
+            var users = await userRepository.GetAllUsers();
+            return users;
+        }
     };
         
 

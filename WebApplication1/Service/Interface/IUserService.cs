@@ -5,6 +5,8 @@ namespace WebApplication1.Service.Interface
 {
     public interface IUserService
     {
+        Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers();
+
         Task<User> GetUserByEmail(string email);
         Task<bool> Register(RegisterUserRequest dto);
         Task<UserResponseDto?> SearchUserByEmail(string email);

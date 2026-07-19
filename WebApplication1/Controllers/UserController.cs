@@ -133,6 +133,17 @@ namespace WebApplication1.Controllers
             return Ok(user);
 
         }
-        
+
+
+        [HttpGet("GetAllUsers")]
+        public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> GetAllUsers()
+        {
+            var users = await userService.GetAllUsers();
+            return Ok(new
+            {
+                totalCount = users.Count,  
+                data = users               
+            });
+        }
     }
 }
