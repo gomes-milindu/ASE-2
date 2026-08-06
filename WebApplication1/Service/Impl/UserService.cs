@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using WebApplication1.DTO;
 using WebApplication1.Models;
+using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
 
@@ -219,6 +220,21 @@ namespace WebApplication1.Service.Impl
         {
             var users = await userRepository.GetAllUsers();
             return users;
+        }
+
+        public async Task<bool> UpdateUser(UpdateUserDto updateUser)
+        {
+
+            System.Diagnostics.Debug.WriteLine($"Update User Email: {updateUser.Email}");
+            var updateUserEmail =await  userRepository.GetUserByEmail(updateUser.Email);
+            if (updateUserEmail == null)
+            {
+                return false;
+            }
+
+            /*var editUser = await userRepository.SaveUser();*/
+
+            return true;
         }
     };
         

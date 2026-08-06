@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebApplication1.DTO;
+using WebApplication1.Models.Enums;
 
 namespace WebApplication1.Models
 {
@@ -12,7 +14,9 @@ namespace WebApplication1.Models
         public string Username { get; set; }
 
         [Required]
-        public AccountStatus Status { get; set; }
+        public AccountStatus Status { get; set; } = AccountStatus.Pending;
+
+        public UserRole Role { get; set; } = UserRole.Customer;
 
         public virtual UserCredential Credential { get; set; }
         public virtual UserProfile Profile { get; set; }
@@ -22,11 +26,5 @@ namespace WebApplication1.Models
 
     }
 
-    public enum AccountStatus
-    {
-        Pending,
-        Active,
-        Locked,
-        Suspended
-    }
+   
 }

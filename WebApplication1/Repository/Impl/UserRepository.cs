@@ -17,15 +17,17 @@ namespace WebApplication1.Repository.Impl
 
         public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers()
         {
-            List<UserResponseDto> usersList = await context.Users.Select(u => new UserResponseDto { 
-                                                                        Id = u.Id, 
-                                                                        Username = u.Username, 
-                                                                        Status = u.Status.ToString(), 
-                                                                        Email = u.Profile.Email, 
-                                                                        FirstName = u.Profile.FirstName, 
-                                                                        LastName = u.Profile.LastName, 
-                                                                        PhoneNumber = u.Profile.PhoneNumber })
-                                                                        .ToListAsync();
+            List<UserResponseDto> usersList = await context.Users.Select(u => new UserResponseDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Status = u.Status.ToString(),
+                Email = u.Profile.Email,
+                FirstName = u.Profile.FirstName,
+                LastName = u.Profile.LastName,
+                PhoneNumber = u.Profile.PhoneNumber
+            })
+                .ToListAsync();
             return usersList;
         }
 
@@ -34,7 +36,7 @@ namespace WebApplication1.Repository.Impl
             var user = await context.Users.Include(u => u.Profile)
                 .Include(u => u.Credential)
                 .FirstOrDefaultAsync(u => u.Profile.Email == email);
-            
+
             return user;
         }
 
@@ -52,9 +54,9 @@ namespace WebApplication1.Repository.Impl
                 else
                 {
                     await context.Users.AddAsync(user);
-                   
+
                 }
-                
+
                 await context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -65,8 +67,6 @@ namespace WebApplication1.Repository.Impl
                 throw;
             }
         }
-
-        
 
         public Task UpdateUser(User user)
         {

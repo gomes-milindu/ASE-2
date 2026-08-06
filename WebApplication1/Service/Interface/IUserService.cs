@@ -12,6 +12,7 @@ namespace WebApplication1.Service.Interface
         Task<UserResponseDto?> SearchUserByEmail(string email);
         Task<bool> SendVerificationEmail(User user);
         Task<bool> SendVerificationSms(User user);
+        Task<bool> UpdateUser(UpdateUserDto updateUser);
         Task<bool> VerifyEmailOtp(VerifyEmailOtp dto);
         Task<bool> VerifySmsOtp(VerifyEmailOtp dto);
     }

@@ -22,6 +22,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<IEmailService, EmailSender>();
+builder.Services.AddTransient<IAuthService, AuthService>();
 // Inside Program.cs
 builder.Services.AddScoped<ISmsService, SmsSender>();
 // Add this to register HttpClient in the DI container
@@ -43,11 +44,7 @@ builder.Services.AddControllers()
 
 try
 {
-    //string connStr = builder.Configuration.GetConnectionString("MySqlConnection");
-
-    //using var connection = new MySqlConnection(connStr);
-
-    //connection.Open();
+    
 
     builder.Services.AddDbContext<AppDbContext>(options =>
      options.UseMySql(

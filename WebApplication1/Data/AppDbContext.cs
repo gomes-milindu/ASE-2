@@ -15,6 +15,8 @@ namespace WebApplication1.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Credential)
                 .WithOne(c => c.User)

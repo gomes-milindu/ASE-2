@@ -8,7 +8,7 @@ namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : Controller
+    public class UserController : ControllerBase
     {
         private readonly IUserService userService;
 
@@ -145,5 +145,16 @@ namespace WebApplication1.Controllers
                 data = users               
             });
         }
+
+
+        [HttpPut("UpdateUser")]
+        public async Task<IActionResult> UpdateUser(UpdateUserDto updateUser)
+        {
+            var userUpdate = await userService.UpdateUser(updateUser);
+            return Ok("User Update successfully");
+        }
+        
+
+        
     }
 }
