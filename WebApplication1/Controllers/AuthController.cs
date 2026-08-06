@@ -7,7 +7,7 @@ namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         private readonly IAuthService authService;
 
@@ -20,12 +20,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Login([FromBody] AuthLoginDto authLoginDto)
         {
             var token = await authService.Login(authLoginDto);
-           /*
-            if (string.IsNullOrEmpty(token))
-            {
-                return Unauthorized(new { Message = "Invalid Username or Password" });
-            }
-           */
+           
             return Ok(new
             {
                 Message = "Login successful.",

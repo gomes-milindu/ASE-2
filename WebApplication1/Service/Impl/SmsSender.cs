@@ -22,8 +22,7 @@ namespace WebApplication1.Service.Impl
             string sender_Id = _configuration["SmsSettings:SenderId"];
             string email = _configuration["SmsSettings:Email"];
 
-            Console.WriteLine("Sender Id " + sender_Id);
-
+            
             var smsPayload = new
             {
                 senderID = sender_Id,

@@ -6,7 +6,9 @@ using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 
+DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 
