@@ -10,6 +10,7 @@ namespace WebApplication1.Service.Interface
         Task<User> GetUserByEmail(string email);
         Task<bool> Register(RegisterUserRequest dto);
         Task<UserResponseDto?> SearchUserByEmail(string email);
+        Task<UserResponseDto?> SearchUserByUsername(string username);
         Task<bool> SendVerificationEmail(User user);
         Task<bool> SendVerificationSms(User user);
         Task<bool> UpdateUser(UpdateUserDto updateUser);

@@ -7,6 +7,7 @@ namespace WebApplication1.Repository.Interface
     {
         Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers();
         Task<User> GetUserByEmail(string email);
+        Task<User> GetUserByUsername(string username);
         Task SaveUser(User user);
         
         Task UpdateUser(User user);

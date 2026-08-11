@@ -53,10 +53,11 @@ namespace WebApplication1.Service.Impl
             var user = await userRepository.GetUserByEmail(email);
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new ArgumentNullException("User not found");
+               
             }
 
-            if(user.Status == AccountStatus.Active)
+            if (user.Status == AccountStatus.Active)
             {
                 throw new Exception("Account is Already active");
             }
@@ -232,9 +233,31 @@ namespace WebApplication1.Service.Impl
                 return false;
             }
 
-            /*var editUser = await userRepository.SaveUser();*/
+           
 
             return true;
+        }
+
+        public async Task<UserResponseDto?> SearchUserByUsername(string username)
+        {
+            if (username == null)
+            {
+                throw new ArgumentNullException(nameof(username), "Username cannot be null");
+            }
+
+            var user = await userRepository.GetUserByUsername(username);
+            if(user == null) return null;
+
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Status = user.Status.ToString(),
+                Email = user.Profile?.Email ?? string.Empty,
+                FirstName = user.Profile?.FirstName ?? string.Empty,
+                LastName = user.Profile?.LastName ?? string.Empty,
+                PhoneNumber = user.Profile?.PhoneNumber ?? string.Empty
+            };
         }
     };
         

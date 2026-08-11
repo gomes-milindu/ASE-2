@@ -126,9 +126,18 @@ namespace WebApplication1.Controllers
 
 
         [HttpGet("SearchUserByEmail")]
-        public async Task<IActionResult> GetUserByEmail( string email)
+        public async Task<IActionResult> GetUserByEmail(string email)
         {
             var user = await userService.SearchUserByEmail(email);
+
+            return Ok(user);
+
+        }
+
+        [HttpGet("SearchUserByUsername")]
+        public async Task<IActionResult> GetUserByUsername(string username)
+        {
+            var user = await userService.SearchUserByUsername(username);
 
             return Ok(user);
 

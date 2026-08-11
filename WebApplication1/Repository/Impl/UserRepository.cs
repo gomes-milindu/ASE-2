@@ -40,6 +40,15 @@ namespace WebApplication1.Repository.Impl
             return user;
         }
 
+        public async Task<User> GetUserByUsername(string username)
+        {
+            var user = await context.Users.Include(u => u.Profile)
+                .Include(u => u.Credential)
+                .FirstOrDefaultAsync(u => u.Username == username);
+
+            return user;
+        }
+
         public async Task SaveUser(User user)
         {
             using var transaction = await context.Database.BeginTransactionAsync();
