@@ -6,6 +6,8 @@ using WebApplication1.DTO;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
+using BCrypt.Net;
+
 
 
 namespace WebApplication1.Service.Impl
@@ -17,25 +19,33 @@ namespace WebApplication1.Service.Impl
         public AuthService(IUserRepository userRepository)
         {
             this.userRepository = userRepository;
+            
         }
 
         public async Task<String> Login(AuthLoginDto authLoginDto)
         {
-            if (authLoginDto.username == null || authLoginDto.password == null)
+            if (string.IsNullOrEmpty(authLoginDto.username) || string.IsNullOrEmpty(authLoginDto.password))
             {
                 return "Please Check the username or password";
             }
 
-            var userCheck = await userRepository.GetUserByEmail(authLoginDto.username);
+            var userCheck = await userRepository.GetUserByUsername(authLoginDto.username);
 
-            if(userCheck.Profile.Email == authLoginDto.username)
+            if (userCheck == null)
             {
-                if(userCheck.Credential.PasswordHash == authLoginDto.password)
+                
+                return "Please Check Your Username and Password";
+            }
+
+            if (userCheck.Username == authLoginDto.username)
+            {
+                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(authLoginDto.password, userCheck.Credential.PasswordHash);
+
+                if (isPasswordValid)
                 {
+                    
                     return "Login Succesfull";
                 }
-
-                return "Please Check Your Username and Password Again";
             }
             
 

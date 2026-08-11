@@ -226,8 +226,8 @@ namespace WebApplication1.Service.Impl
         public async Task<bool> UpdateUser(UpdateUserDto updateUser)
         {
 
-            System.Diagnostics.Debug.WriteLine($"Update User Email: {updateUser.Email}");
-            var updateUserEmail =await  userRepository.GetUserByEmail(updateUser.Email);
+            
+            var updateUserEmail =await  userRepository.GetUserByEmail(updateUser.Password);
             if (updateUserEmail == null)
             {
                 return false;
