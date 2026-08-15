@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using WebApplication1.Data;
@@ -9,6 +10,20 @@ using WebApplication1.Service.Interface;
 DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
+// Rate Limiter
+
+builder.Services.AddRateLimiter(options =>
+{
+    
+    options.AddFixedWindowLimiter("LoginPolicy", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1); 
+        opt.PermitLimit = 5;                  
+        opt.QueueLimit = 0;                   
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // Add services to the container.
 
@@ -72,6 +87,11 @@ var app = builder.Build();
 // Swagger middleware
 app.UseSwagger();
 app.UseSwaggerUI();
+
+
+// Rate Limiter
+app.UseRouting();
+app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
