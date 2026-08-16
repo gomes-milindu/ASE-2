@@ -1,9 +1,10 @@
-﻿using WebApplication1.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
+using WebApplication1.DTO;
 
 namespace WebApplication1.Service.Interface
 {
     public interface IAuthService
     {
-        Task<String> Login(AuthLoginDto authLoginDto);
+        Task<AuthLoginResponseDto> Login(AuthLoginDto authLoginDto);
     }
 }

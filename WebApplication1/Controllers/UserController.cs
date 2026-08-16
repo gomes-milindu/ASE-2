@@ -159,7 +159,7 @@ namespace WebApplication1.Controllers
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser(UpdateUserDto updateUser)
         {
-            var userUpdate = await userService.UpdateUser(updateUser);
+            await userService.UpdateUser(updateUser);
             return Ok("User Update successfully");
         }
         

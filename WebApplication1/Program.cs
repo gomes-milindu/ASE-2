@@ -53,6 +53,13 @@ builder.Services.AddScoped<ISmsService, SmsSender>();
 builder.Services.AddHttpClient();
 
 
+// Required to extract the IP Address from incoming HTTP requests
+builder.Services.AddHttpContextAccessor();
+
+// Register the new Audit Service
+builder.Services.AddScoped<IAuditService, AuditService>();
+
+
 
 
 

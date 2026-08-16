@@ -12,6 +12,7 @@ namespace WebApplication1.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserCredential> UserCredentials { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
