@@ -3,15 +3,17 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Superpower.Parsers;
 using System.Diagnostics;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using WebApplication1.DTO;
 using WebApplication1.DTO;
 using WebApplication1.Models;
 using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
-using WebApplication1.DTO;
 
 
 
@@ -112,12 +114,25 @@ namespace WebApplication1.Service.Impl
             userCheck.Credential.LockoutUntil = null;
             await userRepository.SaveUser(userCheck);
 
-            //return "Login Successfull";
+            var token = new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: new[]
+                {
+                    new Claim(ClaimTypes.Name, userCheck.Username),
+                    new Claim(ClaimTypes.NameIdentifier, userCheck.Id.ToString()),
+                    new Claim(ClaimTypes.Role, userCheck.Role.ToString())
+                },
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
+                    SecurityAlgorithms.HmacSha256)
+            ));
             return new AuthLoginResponseDto
             {
-                Success = false,
+                Success = true,
                 Message = "Login Successfull",
-                Token = null
+                Token = "nihjl458/ibhfgKKL:kmlm698lknn ,mnl;"
             };
         }
     }
