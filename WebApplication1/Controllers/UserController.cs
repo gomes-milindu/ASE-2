@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 using WebApplication1.DTO;
 using WebApplication1.Models;
 using WebApplication1.Repository.Impl;
@@ -21,13 +22,14 @@ namespace WebApplication1.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserRequest dto)
         {
+            System.Diagnostics.Debug.WriteLine("Hello Hello");
             await userService.Register(dto);
 
             return Ok("User registered successfully");
         }
 
         [HttpPost("SendEmailToVerify")]
-        public async Task<IActionResult> SendEmail([FromBody] string email)
+        public async Task<IActionResult> SendEmail([FromQuery] string email)
         {
             if (string.IsNullOrEmpty(email)) { return BadRequest("Email is required"); }
 
@@ -39,15 +41,21 @@ namespace WebApplication1.Controllers
                 return NotFound("User Not Found");
             }
 
-            var result = await userService.SendVerificationEmail(user);
+            try
+            {
+                var result = await userService.SendVerificationEmail(user);
 
-            if (result)
-            {
-                return Ok("Verification email sent successfully");
+                if (result)
+                {
+                    return Ok("Verification email sent successfully");
+                }
+
+                return StatusCode(500, "Failed to send verification email: Service returned false.");
             }
-            else
+            catch (Exception ex)
             {
-                return StatusCode(500, "Failed to send verification email");
+                // Catching the exception guarantees this path also returns an IActionResult
+                return StatusCode(500, $"Email error: {ex.Message} -> {ex.InnerException?.Message}");
             }
 
         }

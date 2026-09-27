@@ -14,7 +14,10 @@ using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
-
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace WebApplication1.Service.Impl
@@ -22,10 +25,14 @@ namespace WebApplication1.Service.Impl
     public class AuthService : IAuthService
     {
         private readonly IUserRepository userRepository;
+        private readonly IConfiguration _config;
 
-        public AuthService(IUserRepository userRepository)
+      
+
+        public AuthService(IUserRepository userRepository, IConfiguration configuration)
         {
             this.userRepository = userRepository;
+            this._config = configuration;
             
         }
 
@@ -33,81 +40,65 @@ namespace WebApplication1.Service.Impl
         {
             if (string.IsNullOrEmpty(authLoginDto.username) || string.IsNullOrEmpty(authLoginDto.password))
             {
-                return new AuthLoginResponseDto
-                {
-                    Success = false,
-                    Message = "Please check your username and password",
-                    Token = null
+                return new AuthLoginResponseDto { 
+                    Success = false, 
+                    Message = "Please check your username and password", 
+                    Token = null 
                 };
             }
 
             var userCheck = await userRepository.GetUserByUsername(authLoginDto.username);
-           
+
+            if (userCheck == null)
+            {
+                return new AuthLoginResponseDto { 
+                    Success = false, 
+                    Message = "Please Check Your Username and Password", 
+                    Token = null 
+                };
+            }
 
             if (userCheck.Credential.LockoutUntil.HasValue && userCheck.Credential.LockoutUntil.Value > DateTime.UtcNow)
             {
-                return new AuthLoginResponseDto
-                {
-                    Success = false,
-                    Message = "Account Locked",
-                    Token = null
+                return new AuthLoginResponseDto { 
+                    Success = false, 
+                    Message = "Account Locked", 
+                    Token = null 
                 };
             }
 
             if (userCheck.Status != AccountStatus.Active)
             {
-                // return "Please Verify your mobile and email first";
-                return new AuthLoginResponseDto
-                {
-                    Success = false,
-                    Message = "Please Verify your mobile and email first",
-                    Token = null
+                return new AuthLoginResponseDto { 
+                    Success = false, 
+                    Message = "Please Verify your mobile and email first", 
+                    Token = null 
                 };
             }
 
-            if (userCheck == null)
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(authLoginDto.password, userCheck.Credential.PasswordHash);
+
+            if (!isPasswordValid)
             {
-                return new AuthLoginResponseDto
+                userCheck.Credential.FailedLoginAttempts++;
+
+                if (userCheck.Credential.FailedLoginAttempts >= 5)
                 {
-                    Success = false,
-                    Message = "Please Check Your Username and Password",
-                    Token = null
-                };
-            }
-
-            if (userCheck.Username == authLoginDto.username)
-            {
-                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(authLoginDto.password, userCheck.Credential.PasswordHash);
-
-                if (!isPasswordValid)
-                {
-                    
-                    userCheck.Credential.FailedLoginAttempts++;
-
-                   
-                    if (userCheck.Credential.FailedLoginAttempts >= 5)
-                    {
-                        userCheck.Credential.LockoutUntil = DateTime.UtcNow.AddMinutes(2);
-                        await userRepository.SaveUser(userCheck);
-                        // return "Acccount Lock in 5 Minutes";
-                        return new AuthLoginResponseDto
-                        {
-                            Success = false,
-                            Message = "Acccount Lock in 5 Minutes",
-                            Token = null
-                        };
-                    }
-
+                    userCheck.Credential.LockoutUntil = DateTime.UtcNow.AddMinutes(2);
                     await userRepository.SaveUser(userCheck);
-                    //return "Please Check Your Username or Password";
-                    return new AuthLoginResponseDto
-                    {
-                        Success = false,
-                        Message = "Please Check Your Username or Password",
-                        Token = null
+                    return new AuthLoginResponseDto { 
+                        Success = false, 
+                        Message = "Acccount Lock in 5 Minutes", 
+                        Token = null 
                     };
-
                 }
+
+                await userRepository.SaveUser(userCheck);
+                return new AuthLoginResponseDto { 
+                    Success = false, 
+                    Message = "Please Check Your Username or Password", 
+                    Token = null 
+                };
             }
 
             userCheck.Credential.FailedLoginAttempts = 0;
@@ -115,24 +106,27 @@ namespace WebApplication1.Service.Impl
             await userRepository.SaveUser(userCheck);
 
             var token = new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: new[]
-                {
-                    new Claim(ClaimTypes.Name, userCheck.Username),
-                    new Claim(ClaimTypes.NameIdentifier, userCheck.Id.ToString()),
-                    new Claim(ClaimTypes.Role, userCheck.Role.ToString())
-                },
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
-                    SecurityAlgorithms.HmacSha256)
+                                        issuer: _config["Jwt:Issuer"],
+                                        audience: _config["Jwt:Audience"],
+                                        claims: new[]
+                                        {
+                                    new Claim(ClaimTypes.Name, userCheck.Username),
+                                    new Claim(ClaimTypes.NameIdentifier, userCheck.Id.ToString()),
+                                    new Claim(ClaimTypes.Role, userCheck.Role.ToString())
+                                        },
+                                        expires: DateTime.UtcNow.AddHours(1),
+                                        signingCredentials: new SigningCredentials(
+                                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
+                                            SecurityAlgorithms.HmacSha256)
             ));
-            return new AuthLoginResponseDto
-            {
-                Success = true,
-                Message = "Login Successfull",
-                Token = "nihjl458/ibhfgKKL:kmlm698lknn ,mnl;"
+
+
+            
+
+            return new AuthLoginResponseDto { 
+                Success = true, 
+                Message = "Login Successfull", 
+                Token = token 
             };
         }
     }
