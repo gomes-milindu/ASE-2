@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Superpower.Model;
+using System.Diagnostics;
 using System.Text.Json;
 using WebApplication1.DTO;
 using WebApplication1.Service.Impl;
@@ -15,14 +16,18 @@ namespace WebApplication1.Controllers
     {
         private readonly IAuthService authService;
         private readonly IAuditService auditService;
+
+        private readonly IUserService userService;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public AuthController(IAuthService authService , IAuditService auditService, IHttpContextAccessor httpContextAccessor)
+        public AuthController(IAuthService authService , IAuditService auditService, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             this.authService = authService;
             this.auditService = auditService;
             this.httpContextAccessor = httpContextAccessor;
+            this.userService = userService;
         }
+
 
         [EnableRateLimiting("LoginPolicy")]
         [HttpPost("loginController")]
@@ -60,6 +65,16 @@ namespace WebApplication1.Controllers
 
 
         }
+
+
+        [HttpPost("forgotPasswordController")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        {
+            var forgotPassword = await authService.ForgotPassword(forgotPasswordDto);
+
+            return Ok(new { message = "Password reset link sent to your email" });
+        }
+
 
     }
 }

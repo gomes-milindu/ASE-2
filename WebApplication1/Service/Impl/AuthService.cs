@@ -1,9 +1,15 @@
 ﻿using BCrypt.Net;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Superpower.Parsers;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.AccessControl;
 using System.Security.Claims;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,10 +20,6 @@ using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 
 namespace WebApplication1.Service.Impl
@@ -27,6 +29,7 @@ namespace WebApplication1.Service.Impl
         private readonly IUserRepository userRepository;
         private readonly IConfiguration _config;
 
+        
       
 
         public AuthService(IUserRepository userRepository, IConfiguration configuration)
@@ -34,6 +37,28 @@ namespace WebApplication1.Service.Impl
             this.userRepository = userRepository;
             this._config = configuration;
             
+        }
+
+        public async Task<ForgotPasswordResponseDto> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var user = await userRepository.GetUserByEmail(forgotPasswordDto.Email);
+
+            if(user == null)
+            {
+                throw new Exception("Password reset link sent to your email");
+            }
+            
+            // raw token ekak hdnwa email ekata ywnna
+            var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+            
+            // token eka hashn krnwa db eke save krnna
+            using var sha256 = SHA256.Create();
+            var tokenHash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken)));
+
+            
+
+            System.Diagnostics.Debug.WriteLine(JsonSerializer.Serialize(new { Id = user.Id, Email = user.Profile.Email,  Username = user.Username }));
+            return new ForgotPasswordResponseDto();
         }
 
         public async Task<AuthLoginResponseDto> Login(AuthLoginDto authLoginDto)

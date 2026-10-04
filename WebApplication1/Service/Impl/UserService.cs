@@ -57,9 +57,10 @@ namespace WebApplication1.Service.Impl
                
             }
 
-            if (user.Status == AccountStatus.Active)
+            
+            if (user.Status != AccountStatus.Active)
             {
-                throw new Exception("Account is Already active");
+                throw new Exception("Account is Not Active");
             }
             return user;
         }

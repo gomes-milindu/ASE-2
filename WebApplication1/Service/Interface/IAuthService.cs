@@ -5,6 +5,7 @@ namespace WebApplication1.Service.Interface
 {
     public interface IAuthService
     {
+        Task<ForgotPasswordResponseDto> ForgotPassword(ForgotPasswordDto forgotPasswordDto);
         Task<AuthLoginResponseDto> Login(AuthLoginDto authLoginDto);
     }
 }
