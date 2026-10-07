@@ -51,6 +51,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<IEmailService, EmailSender>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddScoped<ISmsService, SmsSender>();
+builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
 builder.Services.AddHttpClient();
 
 // Required to extract the IP Address from incoming HTTP requests

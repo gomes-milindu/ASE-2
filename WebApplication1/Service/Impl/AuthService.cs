@@ -28,16 +28,20 @@ namespace WebApplication1.Service.Impl
     {
         private readonly IUserRepository userRepository;
         private readonly IConfiguration _config;
+        private readonly IEmailService emailService;
+        private readonly IForgotPasswordRepository forgotPasswordRepository;
 
-        
-      
 
-        public AuthService(IUserRepository userRepository, IConfiguration configuration)
+        public AuthService(IUserRepository userRepository, IConfiguration configuration, IForgotPasswordRepository forgotPasswordRepository, IEmailService emailService)
         {
             this.userRepository = userRepository;
             this._config = configuration;
+            this.forgotPasswordRepository = forgotPasswordRepository;
+            this.emailService = emailService;
             
         }
+
+
 
         public async Task<ForgotPasswordResponseDto> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
@@ -55,11 +59,55 @@ namespace WebApplication1.Service.Impl
             using var sha256 = SHA256.Create();
             var tokenHash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken)));
 
-            
+            var resetTokenEntry = new ForgotPassword
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = user.Id,
+                TokenHash = tokenHash,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15), 
+                IsUsed = false,
+                AttemptsCount = 0,
+                CreatedAt = DateTime.UtcNow
+            };
 
-            System.Diagnostics.Debug.WriteLine(JsonSerializer.Serialize(new { Id = user.Id, Email = user.Profile.Email,  Username = user.Username }));
-            return new ForgotPasswordResponseDto();
+            await forgotPasswordRepository.AddAsync(resetTokenEntry);
+
+            System.Diagnostics.Debug.WriteLine(JsonSerializer.Serialize(new { Id = user.Id, Email = user.Profile.Email, Username = user.Username }));
+
+            var resetLink = $"https://yourfrontendapp.com/reset-password?token={rawToken}";
+
+            var emailBody = $@"
+                            <h3>Password Reset Request</h3>
+                            <p>ඔබගේ ගිණුමේ මුරපදය reset කිරීමට ඉල්ලීමක් ලැබී ඇත. පහත link එක click කර නව මුරපදයක් සකසන්න:</p>
+                            <p><a href='{resetLink}'>Reset Password</a></p>
+                            <p>මෙම link එක වලංගු වන්නේ විනාඩි 15ක් පමණි.</p>";
+
+            try
+            {
+                await emailService.SendEmailAsync(user.Profile.Email, "Reset Your Password", emailBody);
+            }
+            catch (Exception ex)
+            {
+                
+                System.Diagnostics.Debug.WriteLine($"Email send failed: {ex.Message}");
+
+                return new ForgotPasswordResponseDto
+                {
+                    Token = "Failed to send email. Please try again later."
+                };
+            }
+
+
+            return new ForgotPasswordResponseDto
+            {
+                Token = "Password reset link sent to your email."
+            };
         }
+
+
+
+
+
 
         public async Task<AuthLoginResponseDto> Login(AuthLoginDto authLoginDto)
         {
