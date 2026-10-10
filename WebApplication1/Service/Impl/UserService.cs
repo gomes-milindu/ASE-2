@@ -58,10 +58,10 @@ namespace WebApplication1.Service.Impl
             }
 
             
-            if (user.Status != AccountStatus.Active)
-            {
-                throw new Exception("Account is Not Active");
-            }
+            //if (user.Status != AccountStatus.Active)
+            //{
+            //    throw new Exception("Account is Not Active");
+            //}
             return user;
         }
 
@@ -96,7 +96,14 @@ namespace WebApplication1.Service.Impl
                 }
             };
 
+            var message = "Hi ${user.FirstName}!. you Succesffulyy created the account. Stay tuned for the updates";
+
+            
                 await userRepository.SaveUser(user);
+
+                
+             
+                
 
                  return true;
         }
@@ -191,6 +198,28 @@ namespace WebApplication1.Service.Impl
                 }
 
                 await userRepository.SaveUser(user);
+
+
+                if (user.Status == AccountStatus.Active)
+                {
+                    try
+                    {
+                        var message =
+                            $"Hi {user.Profile.FirstName}! " +
+                            "You successfully activated your account. " +
+                            "Stay tuned for updates.";
+
+                        await smsService.SendSmsAsync(
+                            user.Profile.PhoneNumber,
+                            message
+                        );
+                    }
+                    catch (Exception)
+                    {
+                        // OTP verification succeeded even if notification failed.
+                        // Log the exception here.
+                    }
+                }
                 return true;
             }
             return false;

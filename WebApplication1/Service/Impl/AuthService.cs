@@ -49,9 +49,23 @@ namespace WebApplication1.Service.Impl
 
             if(user == null)
             {
-                throw new Exception("Password reset link sent to your email");
+                return new ForgotPasswordResponseDto
+                {
+                    Token = "If the email is registered, a password reset link has been sent."
+                };
             }
-            
+
+            var recentRequestsCount = await forgotPasswordRepository.GetRecentRequestsCountAsync(user.Id,DateTime.UtcNow.AddHours(-1));
+
+            if (recentRequestsCount >= 3)
+            {
+               
+                return new ForgotPasswordResponseDto
+                {
+                    Token = "If the email is registered, a password reset link has been sent."
+                };
+            }
+
             // raw token ekak hdnwa email ekata ywnna
             var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
             
@@ -70,9 +84,7 @@ namespace WebApplication1.Service.Impl
                 CreatedAt = DateTime.UtcNow
             };
 
-            await forgotPasswordRepository.AddAsync(resetTokenEntry);
-
-            System.Diagnostics.Debug.WriteLine(JsonSerializer.Serialize(new { Id = user.Id, Email = user.Profile.Email, Username = user.Username }));
+            
 
             var resetLink = $"https://yourfrontendapp.com/reset-password?token={rawToken}";
 
@@ -82,9 +94,13 @@ namespace WebApplication1.Service.Impl
                             <p><a href='{resetLink}'>Reset Password</a></p>
                             <p>මෙම link එක වලංගු වන්නේ විනාඩි 15ක් පමණි.</p>";
 
+            await forgotPasswordRepository.InvalidatePreviousTokensAsync(user.Id);
+
             try
             {
                 await emailService.SendEmailAsync(user.Profile.Email, "Reset Your Password", emailBody);
+
+                await forgotPasswordRepository.AddAsync(resetTokenEntry);
             }
             catch (Exception ex)
             {

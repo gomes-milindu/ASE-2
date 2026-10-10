@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Superpower.Model;
-using System.Diagnostics;
-using System.Text.Json;
 using WebApplication1.DTO;
-using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
+
 
 namespace WebApplication1.Controllers
 {
@@ -66,7 +62,7 @@ namespace WebApplication1.Controllers
 
         }
 
-
+        [EnableRateLimiting("ForgotPasswordPolicy")]
         [HttpPost("forgotPasswordController")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
